@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="todoApp">
+<head>
+    <title>AngularJS ToDo App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        button {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body ng-controller="TodoController">
+<h2>Shal's To-do List</h2>
+<input type="text" ng-model="newTask" placeholder="Add new task">
+<button ng-click="addTask()">Add</button>
+<br><br>
+Show:
+<select ng-model="statusFilter">
+    <option value="">All</option>
+    <option value="true">Completed</option>
+    <option value="false">Pending</option>
+</select>
+<p>{{remaining()}} of {{tasks.length}} remaining</p>
+<ul>
+    <li ng-repeat="task in tasks | filter:filterTasks">
+        <input type="checkbox" ng-model="task.completed">
+        <span ng-class="{completed: task.completed}">
+            {{task.text}}
+        </span>
+        <button ng-click="deleteTask($index)">Delete</button>
+    </li>
+</ul>
+<script>
+var app = angular.module("todoApp", []);
+app.controller("TodoController", function($scope) {
+    $scope.tasks = [
+        {text: "Todo 1", completed: false},
+        {text: "Todo 2", completed: true},
+        {text: "Todo 3", completed: false}
+    ];
+    $scope.addTask = function() {
+        if ($scope.newTask) {
+            $scope.tasks.push({
+                text: $scope.newTask,
+                completed: false
+            });
+            $scope.newTask = "";
+        }
+    };
+    $scope.deleteTask = function(index) {
+        $scope.tasks.splice(index, 1);
+    };
+    $scope.remaining = function() {
+        return $scope.tasks.filter(t => !t.completed).length;
+    };
+    $scope.filterTasks = function(task) {
+        if ($scope.statusFilter === "") return true;
+        return task.completed.toString() === $scope.statusFilter;
+    };
+
+});
+</script>
+
+</body>
+</html>
