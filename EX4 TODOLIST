@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="todoApp">
+<head>
+    <title>AngularJS ToDo App - Enhanced</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        .completed { text-decoration: line-through; color: #888; }
+        button { margin-left: 5px; cursor: pointer; padding: 2px 8px; }
+        .task-item { margin-bottom: 10px; list-style: none; }
+        input[type="text"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .edit-input { font-size: 1em; width: 200px; }
+        ul { padding-left: 0; }
+    </style>
+</head>
+<body ng-controller="TodoController">
+
+<h2>My Todo List</h2>
+
+<div>
+    <input type="text" ng-model="newTask" placeholder="What needs to be done?" 
+           ng-keydown="$event.keyCode === 13 && addTask()">
+    <button ng-click="addTask()" style="background-color: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 4px;">
+        Add Task
+    </button>
+</div>
+
+<br>
+
+<div>
+    Show:
+    <select ng-model="statusFilter">
+        <option value="">All Tasks</option>
+        <option value="true">Completed</option>
+        <option value="false">Pending</option>
+    </select>
+    <span style="margin-left: 15px; font-weight: bold;">
+        {{remaining()}} of {{tasks.length}} remaining
+    </span>
+</div>
+
+<hr>
+
+<ul>
+    <li ng-repeat="task in tasks | filter:filterTasks" class="task-item">
+        <div ng-if="!task.editing">
+            <input type="checkbox" ng-model="task.completed">
+            <span ng-class="{completed: task.completed}" ng-dblclick="editTask(task)">
+                {{task.text}}
+            </span>
+            <button ng-click="editTask(task)">Edit</button>
+            <button ng-click="deleteTask(task)" style="color: #d9534f;">Delete</button>
+        </div>
+
+        <div ng-if="task.editing">
+            <input type="text" ng-model="task.tempText" class="edit-input" 
+                   ng-keydown="$event.keyCode === 13 && saveEdit(task)"
+                   focus-on-show>
+            <button ng-click="saveEdit(task)" style="background-color: #5bc0de; color: white; border: none;">Save</button>
+            <button ng-click="cancelEdit(task)">Cancel</button>
+        </div>
+    </li>
+</ul>
+
+<script>
+var app = angular.module("todoApp", []);
+
+// Custom directive to focus input when it appears
+app.directive('focusOnShow', function($timeout) {
+    return function(scope, element, attrs) {
+        scope.$watch(attrs.ngIf, function(newValue) {
+            if (newValue) {
+                $timeout(function() { element[0].focus(); }, 0);
+            }
+        });
+    };
+});
+
+app.controller("TodoController", function($scope) {
+    $scope.tasks = [
+        {text: "Learn AngularJS", completed: false, editing: false},
+        {text: "Build a ToDo App", completed: true, editing: false},
+        {text: "Master Directives", completed: false, editing: false}
+    ];
+
+    $scope.addTask = function() {
+        if ($scope.newTask) {
+            $scope.tasks.push({
+                text: $scope.newTask,
+                completed: false,
+                editing: false
+            });
+            $scope.newTask = "";
+        }
+    };
+
+    // Enter Edit Mode
+    $scope.editTask = function(task) {
+        // Store current text in a temp variable so we can cancel if needed
+        task.tempText = task.text;
+        task.editing = true;
+    };
+
+    // Save Changes
+    $scope.saveEdit = function(task) {
+        if (task.tempText.trim()) {
+            task.text = task.tempText;
+            task.editing = false;
+        }
+    };
+
+    // Cancel Changes
+    $scope.cancelEdit = function(task) {
+        task.editing = false;
+    };
+
+    // Delete Task (Using object reference is safer than index with filters)
+    $scope.deleteTask = function(task) {
+        var index = $scope.tasks.indexOf(task);
+        $scope.tasks.splice(index, 1);
+    };
+
+    $scope.remaining = function() {
+        return $scope.tasks.filter(t => !t.completed).length;
+    };
+
+    $scope.filterTasks = function(task) {
+        if (!$scope.statusFilter) return true;
+        return task.completed.toString() === $scope.statusFilter;
+    };
+});
+</script>
+
+</body>
+</html>
