@@ -1,0 +1,51 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get("/", function(req, res){
+    res.send(`
+        <h1>BMI Calculator</h1>
+        <form action="/calculate" method="post">
+            Height (meters): <input type="text" name="height"><br><br>
+            Weight (kg): <input type="text" name="weight"><br><br>
+            <button type="submit">Calculate BMI</button>
+        </form>
+    `);
+});
+
+app.post("/calculate", function(req, res){
+
+    let height = parseFloat(req.body.height);
+    let weight = parseFloat(req.body.weight);
+
+    let bmi = weight / (height * height);
+
+    let category = "";
+
+    if (bmi < 18.5){
+        category = "Underweight";
+    }
+    else if (bmi < 24.9){
+        category = "Normal Weight";
+    }
+    else if (bmi < 29.9){
+        category = "Overweight";
+    }
+    else{
+        category = "Obese";
+    }
+
+    res.send(`
+        <h2>Your BMI Result</h2>
+        <p>BMI Value: ${bmi.toFixed(2)}</p>
+        <p>Category: ${category}</p>
+        <a href="/">Back</a>
+    `);
+});
+
+app.listen(3000, function(){
+    console.log("Server running on http://localhost:3000");
+});
