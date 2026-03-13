@@ -1,0 +1,179 @@
+app.js :
+   const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
+
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "survey.html"));
+});
+
+app.post("/submit", (req, res) => {
+
+    const name = req.body.name;
+    const email = req.body.email;
+    const rating = req.body.rating;
+    const service = req.body.service;
+    const feedback = req.body.feedback;
+
+    res.send(`
+        <html>
+        <head>
+        <title>Thank You</title>
+        <link rel="stylesheet" href="/style.css">
+        </head>
+        <body>
+        <div class="container">
+        <h1>🎉 Thank You ${name}!</h1>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Rating:</b> ${rating} ⭐</p>
+        <p><b>Service Used:</b> ${service}</p>
+        <p><b>Feedback:</b> ${feedback}</p>
+        <h2>Your response has been recorded successfully!</h2>
+        <a href="/">Submit Another Response</a>
+        </div>
+        </body>
+        </html>
+    `);
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
+survey.html:
+     <!DOCTYPE html>
+<html>
+<head>
+<title>Customer Survey</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Customer Satisfaction Survey</h1>
+
+<form action="/submit" method="POST">
+
+<label>Name</label>
+<input type="text" name="name" required>
+
+<label>Email</label>
+<input type="email" name="email" required>
+
+<label>Service Used</label>
+<select name="service">
+<option>Online Shopping</option>
+<option>Customer Support</option>
+<option>Delivery Service</option>
+<option>Store Visit</option>
+</select>
+
+<label>Rating</label>
+<input type="radio" name="rating" value="1">1
+<input type="radio" name="rating" value="2">2
+<input type="radio" name="rating" value="3">3
+<input type="radio" name="rating" value="4">4
+<input type="radio" name="rating" value="5">5
+
+<label>Feedback</label>
+<textarea name="feedback"></textarea>
+
+<button type="submit">Submit</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
+style.css :
+      *{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+
+/* Aesthetic background image */
+background-image:url("https://images.unsplash.com/photo-1508780709619-79562169bc64");
+background-size:cover;
+background-position:center;
+}
+
+/* Glass style container */
+
+.container{
+width:400px;
+padding:35px;
+
+background: rgba(255,255,255,0.15);
+backdrop-filter: blur(12px);
+border-radius:15px;
+
+box-shadow:0 8px 32px rgba(0,0,0,0.3);
+
+color:white;
+text-align:center;
+}
+
+h1{
+margin-bottom:20px;
+letter-spacing:1px;
+}
+
+/* Inputs */
+
+input,select,textarea{
+width:100%;
+padding:10px;
+margin-top:10px;
+
+border:none;
+border-radius:8px;
+
+outline:none;
+}
+
+/* Rating section */
+
+.rating{
+margin-top:10px;
+}
+
+/* Button */
+
+button{
+margin-top:20px;
+padding:12px;
+width:100%;
+
+background:#ff7eb3;
+border:none;
+border-radius:8px;
+
+color:white;
+font-size:16px;
+font-weight:bold;
+
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#ff4f93;
+transform:scale(1.05);
+}
+
